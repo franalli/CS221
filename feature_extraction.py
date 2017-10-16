@@ -45,6 +45,7 @@ tr_sub_dirs = ["fold1"]
 ts_sub_dirs = ["fold10"]
 tr_features, tr_labels = parse_audio_files(parent_dir,tr_sub_dirs)
 ts_features, ts_labels = parse_audio_files(parent_dir,ts_sub_dirs)
+print (tr_features)
 
 tr_labels = one_hot_encode(tr_labels)
 ts_labels = one_hot_encode(ts_labels)
