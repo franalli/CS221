@@ -22,7 +22,9 @@ def extract_feature(file_name):
 def parse_audio_files(parent_dir,sub_dirs,file_ext="*.wav"):
     features, labels = np.empty((0,193)), np.empty(0)
     for label, sub_dir in enumerate(sub_dirs):
+        i = 0
         for fn in glob.glob(os.path.join(parent_dir, sub_dir, file_ext)):
+            i +=1
             try:
               mfccs, chroma, mel, contrast,tonnetz = extract_feature(fn)
             except Exception as e:
@@ -31,25 +33,29 @@ def parse_audio_files(parent_dir,sub_dirs,file_ext="*.wav"):
             ext_features = np.hstack([mfccs,chroma,mel,contrast,tonnetz])
             features = np.vstack([features,ext_features])
             labels = np.append(labels, fn.split('/')[7].split('-')[1])
+            if i > 10:
+                break
     return np.array(features), np.array(labels, dtype = np.int)
 
-def one_hot_encode(labels):
-    n_labels = len(labels)
-    n_unique_labels = len(np.unique(labels))
-    one_hot_encode = np.zeros((n_labels,n_unique_labels))
-    one_hot_encode[np.arange(n_labels), labels] = 1
-    return one_hot_encode
+# def one_hot_encode(labels):
+#     n_labels = len(labels)
+#     n_unique_labels = len(np.unique(labels))
+#     one_hot_encode = np.zeros((n_labels,n_unique_labels))
+#     one_hot_encode[np.arange(n_labels), labels] = 1
+#     return one_hot_encode
 
 parent_dir = '/home/franalli/Documents/UrbanSound8K/audio/'
-tr_sub_dirs = ["fold1"]
-ts_sub_dirs = ["fold10"]
-tr_features, tr_labels = parse_audio_files(parent_dir,tr_sub_dirs)
-ts_features, ts_labels = parse_audio_files(parent_dir,ts_sub_dirs)
-print (tr_features)
+train_sub_dirs = ["fold1"]
+val_sub_dirs = ["fold9"]
+test_sub_dirs = ["fold10"]
 
-tr_labels = one_hot_encode(tr_labels)
-ts_labels = one_hot_encode(ts_labels)
-np.savetxt('tr_features',tr_features)
-np.savetxt('ts_features',ts_features)
-np.savetxt('tr_labels',tr_labels)
-np.savetxt('ts_labels',ts_labels)
+train_features, train_labels = parse_audio_files(parent_dir,train_sub_dirs)
+val_features, val_labels = parse_audio_files(parent_dir,val_sub_dirs)
+test_features, test_labels = parse_audio_files(parent_dir,test_sub_dirs)
+
+np.savetxt('/home/franalli/Documents/UrbanSound8K/train',train_features)
+np.savetxt('/home/franalli/Documents/UrbanSound8K/val',val_features)
+np.savetxt('/home/franalli/Documents/UrbanSound8K/test',test_features)
+np.savetxt('/home/franalli/Documents/UrbanSound8K/y_train',train_labels)
+np.savetxt('/home/franalli/Documents/UrbanSound8K/y_val',val_labels)
+np.savetxt('/home/franalli/Documents/UrbanSound8K/y_test',test_labels)
