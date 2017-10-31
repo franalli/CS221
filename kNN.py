@@ -11,8 +11,10 @@ y_train = np.loadtxt('/home/franalli/Documents/UrbanSound8K/y_train')
 val = np.loadtxt('/home/franalli/Documents/UrbanSound8K/val')
 y_val = np.loadtxt('/home/franalli/Documents/UrbanSound8K/y_val')
 
-K = [1,2,3,4,5,10]
+# train -= np.mean(train,axis=0)
+# val -= np.mean(val,axis=0)
 
+K = [i for i in range(1,100)]
 for k in K:
     predictions = []
     for i in range(len(val)):
