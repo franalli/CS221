@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from IPython import embed
 from sklearn import preprocessing
 from sklearn.metrics import confusion_matrix
+from sklearn.decomposition import PCA
 import torch
 import random
 from torch.autograd import Variable
@@ -17,16 +18,20 @@ y_train_data = np.loadtxt('/home/franalli/Documents/UrbanSound8K/y_train')
 val = np.loadtxt('/home/franalli/Documents/UrbanSound8K/val')
 y_val = np.loadtxt('/home/franalli/Documents/UrbanSound8K/y_val')
 
-D = 193
+pca = PCA(n_components=185)
+train_data = pca.fit_transform(train_data)
+val = pca.transform(val)
+
+N,D = np.shape(train_data)
 H1 = 200
 H2 = 200
 H3 = 200
 H4 = 200
 D_out = 10
 num_epochs = 1000
-learning_rate = 0.0002
-batch_size = 50
-dropout = 0.50
+learning_rate = 0.001
+batch_size = 100
+dropout = 0.60
 dtype = torch.FloatTensor
 
 val_full = Variable(torch.from_numpy(val).type(dtype),requires_grad=False)
@@ -116,9 +121,11 @@ for epoch in range(num_epochs):
 
     # End of epoch evaluation metrics
     NN.training = False
-    _, indices = torch.max(NN(val_full),dim=1)
-    val_accuracy = np.mean(y_val == indices.data.numpy())
+    _, val_indices = torch.max(NN(val_full),dim=1)
+    _, train_indices = torch.max(NN(train_full),dim=1)
+    val_accuracy = np.mean(y_val == val_indices.data.numpy())
+    train_accuracy = np.mean(y_train_data == train_indices.data.numpy())
     train_loss = loss_fn(NN(train_full),y_train_var).data[0]
     val_loss = loss_fn(NN(val_full),y_val_var).data[0]
     
-    print 'epoch: {}, train_loss: {}, val_loss: {}, val_accuracy: {}'.format(epoch,train_loss,val_loss,val_accuracy)
+    print 'epoch: {}, train_loss: {}, val_loss: {}, train_accuracy: {}, val_accuracy: {}'.format(epoch,train_loss,val_loss,train_accuracy,val_accuracy)
