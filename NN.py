@@ -34,7 +34,9 @@ num_epochs = 200
 learning_rate = 0.0001
 batch_size = 100
 dropout = 0.70
-dtype = torch.FloatTensor
+
+dtype = torch.FloatTensor # Comment this out to run on GPU
+# dtype = torch.cuda.FloatTensor # Uncomment this to run on GPU
 
 val_full = Variable(torch.from_numpy(val).type(dtype),requires_grad=False)
 train_full = Variable(torch.from_numpy(train_data).type(dtype),requires_grad=False)
