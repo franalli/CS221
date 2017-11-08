@@ -1,4 +1,5 @@
 #copyright: https://github.com/aqibsaeed/Urban-Sound-Classification/blob/master/Urban%20Sound%20Classification%20using%20NN.ipynb
+#dataset: http://serv.cusp.nyu.edu/files/jsalamon/datasets/content_loader.php?id=2
 
 import glob
 import os

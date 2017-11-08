@@ -118,7 +118,6 @@ train_features, train_labels = parse_audio_files(parent_dir,train_sub_dirs,1)
 # val_features, val_labels = parse_audio_files(parent_dir,val_sub_dirs,10000)
 # test_features, test_labels = parse_audio_files(parent_dir,test_sub_dirs,100)
 
-embed()
 np.savetxt('/home/franalli/Documents/UrbanSound8K/train',train_features)
 np.savetxt('/home/franalli/Documents/UrbanSound8K/val',val_features)
 # np.savetxt('/home/franalli/Documents/UrbanSound8K/test',test_features)

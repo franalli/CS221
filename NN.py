@@ -13,25 +13,27 @@ from torch.autograd import Variable
 import torch.nn.functional
 import torch.nn as nn
 
-train_data = np.loadtxt('/home/franalli/Documents/UrbanSound8K/train')
-y_train_data = np.loadtxt('/home/franalli/Documents/UrbanSound8K/y_train')
-val = np.loadtxt('/home/franalli/Documents/UrbanSound8K/val')
-y_val = np.loadtxt('/home/franalli/Documents/UrbanSound8K/y_val')
+print 'Loading Dataset'
+train_data = np.loadtxt('train')
+y_train_data = np.loadtxt('y_train')
+val = np.loadtxt('val')
+y_val = np.loadtxt('y_val')
 
 pca = PCA(n_components=185)
 train_data = pca.fit_transform(train_data)
 val = pca.transform(val)
 
 N,D = np.shape(train_data)
+print 'N:',N,'D:',D
 H1 = 200
 H2 = 200
 H3 = 200
 H4 = 200
 D_out = 10
-num_epochs = 1000
-learning_rate = 0.001
+num_epochs = 200
+learning_rate = 0.0001
 batch_size = 100
-dropout = 0.60
+dropout = 0.70
 dtype = torch.FloatTensor
 
 val_full = Variable(torch.from_numpy(val).type(dtype),requires_grad=False)
@@ -100,11 +102,15 @@ class FourLayerNet(nn.Module):
         return self.score(h4)
 
 
-
+print 'Building the model'
 NN = FourLayerNet(D,H1,H2,H3,H4,D_out)
 loss_fn = torch.nn.CrossEntropyLoss(size_average=True)
 optimizer = torch.optim.Adam(NN.parameters(), lr=learning_rate)
 
+E = range(num_epochs)
+T = []
+V = []
+print 'Starting Training'
 for epoch in range(num_epochs):
     NN.training = True
     for i,batch in enumerate(getMinibatches([train_data,y_train_data],batch_size)):
@@ -127,5 +133,19 @@ for epoch in range(num_epochs):
     train_accuracy = np.mean(y_train_data == train_indices.data.numpy())
     train_loss = loss_fn(NN(train_full),y_train_var).data[0]
     val_loss = loss_fn(NN(val_full),y_val_var).data[0]
+    T.append(train_loss)
+    V.append(val_loss)
     
     print 'epoch: {}, train_loss: {}, val_loss: {}, train_accuracy: {}, val_accuracy: {}'.format(epoch,train_loss,val_loss,train_accuracy,val_accuracy)
+
+# embed()
+
+Tplot, = plt.plot(E,T,linewidth=3)
+Vplot, = plt.plot(E,V,linewidth=3)
+plt.title('Feed Forward Network Learning Curves',fontsize=20)
+plt.xlabel('Epoch',fontsize=20)
+plt.xticks(fontsize=20)
+plt.yticks(fontsize=20)
+plt.ylabel('Softmax Loss',fontsize=20)
+plt.legend([Tplot,Vplot],['Training','Validation'],fontsize=20)
+plt.show()
