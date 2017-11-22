@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')
 import glob
 import os
 import numpy as np
@@ -15,11 +17,7 @@ import torch.nn as nn
 import torch.nn.init as weight_init
 
 print 'Loading Dataset'
-#train_data = np.loadtxt('train')
-#y_train_data = np.loadtxt('y_train')
-#val = np.loadtxt('val')
-#y_val = np.loadtxt('y_val')
-
+#'/home/hiroshi/final_project/audio/train'
 train_data = np.loadtxt('/home/hiroshi/final_project/audio/train')
 y_train_data = np.loadtxt('/home/hiroshi/final_project/audio/y_train')
 val = np.loadtxt('/home/hiroshi/final_project/audio/val')
@@ -41,13 +39,13 @@ learning_rate = 0.0001
 batch_size = 100
 dropout = 0.70
 
-dtype = torch.FloatTensor # Comment this out to run on GPU
-# dtype = torch.cuda.FloatTensor # Uncomment this to run on GPU
+#dtype = torch.FloatTensor # Comment this out to run on GPU
+dtype = torch.cuda.FloatTensor # Uncomment this to run on GPU
 
 val_full = Variable(torch.from_numpy(val).type(dtype),requires_grad=False)
 train_full = Variable(torch.from_numpy(train_data).type(dtype),requires_grad=False)
-y_val_var = Variable(torch.from_numpy(y_val).type(torch.LongTensor),requires_grad=False)
-y_train_var = Variable(torch.from_numpy(y_train_data).type(torch.LongTensor),requires_grad=False)
+y_val_var = Variable(torch.from_numpy(y_val).type(torch.cuda.LongTensor),requires_grad=False) #add cuda for GPU
+y_train_var = Variable(torch.from_numpy(y_train_data).type(torch.cuda.LongTensor),requires_grad=False) # add cuda for GPU
 
 
 def getMinibatches(data, batch_size, shuffle=True):
@@ -123,10 +121,11 @@ for epoch in range(num_epochs):
     NN.training = True
     for i,batch in enumerate(getMinibatches([train_data,y_train_data],batch_size)):
         train = Variable(torch.from_numpy(batch[0]).type(dtype), requires_grad=True)
-        y_train = Variable(torch.from_numpy(batch[1]).type(torch.LongTensor),requires_grad=False)
-        y_pred_train = NN(train)
+        y_train = Variable(torch.from_numpy(batch[1]).type(torch.cuda.LongTensor),requires_grad=False) #need cuda for GPU
+        NN = NN.cuda() ## this is for GPU CUDA uncomment if using CPU
+	y_pred_train = NN(train)
 
-
+	
         loss = loss_fn(y_pred_train,y_train)
         optimizer.zero_grad()
         loss.backward()
@@ -137,8 +136,13 @@ for epoch in range(num_epochs):
     NN.training = False
     _, val_indices = torch.max(NN(val_full),dim=1)
     _, train_indices = torch.max(NN(train_full),dim=1)
-    val_accuracy = np.mean(y_val == val_indices.data.numpy())
-    train_accuracy = np.mean(y_train_data == train_indices.data.numpy())
+    val_accuracy = np.mean(y_val == val_indices.data.cpu().numpy())
+    train_accuracy = np.mean(y_train_data == train_indices.data.cpu().numpy())  # need to convert to cpu since numpy doesnt support CUDA
+   # NN = NN.cuda()
+   # train_full_NN = NN(train_full)
+   # val_full_NN = NN(val_full)
+   # train_loss = loss_fn(train_full_NN, y_train_var).data[0]
+   # val_loss = loss_fn(val_full_NN, y_val_var).data[0]
     train_loss = loss_fn(NN(train_full),y_train_var).data[0]
     val_loss = loss_fn(NN(val_full),y_val_var).data[0]
     T.append(train_loss)

@@ -8,11 +8,11 @@ from IPython import embed
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import f1_score
 from sklearn.neighbors import KNeighborsClassifier
-
-train = np.loadtxt('/home/franalli/Documents/UrbanSound8K/train')
-y_train = np.loadtxt('/home/franalli/Documents/UrbanSound8K/y_train')
-val = np.loadtxt('/home/franalli/Documents/UrbanSound8K/val')
-y_val = np.loadtxt('/home/franalli/Documents/UrbanSound8K/y_val')
+##:~/final_project/audio
+train = np.loadtxt('/home/hiroshi/final_project/audio/train')
+y_train = np.loadtxt('/home/hiroshi/final_project/audio/y_train')
+val = np.loadtxt('/home/hiroshi/final_project/audio/val')
+y_val = np.loadtxt('/home/hiroshi/final_project/audio/y_val')
 
 
 
