@@ -37,6 +37,7 @@ clf = RandomForestClassifier(n_estimators=1000, criterion='gini', max_depth=None
 clf.fit(train,y_train)
 
 val_predictions = clf.predict(val)
+embed()
 
 # mfccs:40, chroma:12, mel:128, contrast:7, tonnetz:6, zero_crossing_rate:1
 # rmse:1, bw:1
