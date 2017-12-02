@@ -12,6 +12,7 @@ import random
 from torch.autograd import Variable
 import torch.nn.functional
 import torch.nn as nn
+import cPickle as pickle
 
 print 'Loading Dataset'
 train_data = np.loadtxt('train')
@@ -30,10 +31,10 @@ H2 = 200
 H3 = 200
 H4 = 200
 D_out = 10
-num_epochs = 100
-learning_rate = 0.001
-batch_size = 100
-dropout = 0.5
+num_epochs = 5
+learning_rate = 0.0001
+batch_size = 20
+dropout = 0.65
 
 dtype = torch.FloatTensor # Comment this out to run on GPU
 # dtype = torch.cuda.FloatTensor # Uncomment this to run on GPU
@@ -107,7 +108,7 @@ class FourLayerNet(nn.Module):
 print 'Building the model'
 NN = FourLayerNet(D,H1,H2,H3,H4,D_out)
 loss_fn = torch.nn.CrossEntropyLoss(size_average=True)
-optimizer = torch.optim.Adam(NN.parameters(), lr=learning_rate,weight_decay =1.0)
+optimizer = torch.optim.Adam(NN.parameters(), lr=learning_rate,weight_decay =0.001)
 
 E = range(num_epochs)
 T = []
