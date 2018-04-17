@@ -1,0 +1,8 @@
+﻿Model,Parameters,Train Accuracy,Val Accuracy,PCA
+kNN,1,0.92,0.53,yes
+SVM,64000000,0.89,0.61,yes
+Random Forest,2408240,0.94,0.64,yes
+Four Layer NN,158608,0.88,0.7,no
+CNN,331776,0.85,0.72,no
+ResNet,1877635,0.89,0.75,no
+RNN,1210433,N.A.,N.A.,no

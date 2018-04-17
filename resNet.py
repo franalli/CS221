@@ -1,3 +1,5 @@
+#Copyright: https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py
+
 import glob
 import os
 import numpy as np

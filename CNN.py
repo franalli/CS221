@@ -62,13 +62,13 @@ class CNN(nn.Module):
         super(CNN, self).__init__()
         self.training = True
 
-        self.conv1 = nn.Conv2d(2, 64, kernel_size=5, stride=2, padding=1, dilation=1, groups=1, bias=True)
+        self.conv1 = nn.Conv2d(2, 64, kernel_size=5, stride=2, padding=1, dilation=0, groups=1, bias=True)
         self.bn1 = nn.BatchNorm2d(64)
-        self.conv2 = nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1, dilation=1, groups=1, bias=True)
+        self.conv2 = nn.Conv2d(64, 128, kernel_size=3, stride=2, padding=1, dilation=0, groups=1, bias=True)
         self.bn2 = nn.BatchNorm2d(128)
-        self.conv3 = nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1, dilation=1, groups=1, bias=True)
+        self.conv3 = nn.Conv2d(128, 256, kernel_size=3, stride=2, padding=1, dilation=0, groups=1, bias=True)
         self.bn3 = nn.BatchNorm2d(256)
-        self.conv4 = nn.Conv2d(256, 512, kernel_size=3, stride=2, padding=1, dilation=1, groups=1, bias=True)
+        self.conv4 = nn.Conv2d(256, 512, kernel_size=3, stride=2, padding=1, dilation=0, groups=1, bias=True)
         self.bn4 = nn.BatchNorm2d(512)
         self.maxpool = nn.MaxPool2d(kernel_size=2, stride=2, padding=1)
 
