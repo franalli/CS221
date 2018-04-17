@@ -1,4 +1,5 @@
 #copyright: https://github.com/aqibsaeed/Urban-Sound-Classification/blob/master/Urban%20Sound%20Classification%20using%20NN.ipynb
+#dataset: http://serv.cusp.nyu.edu/files/jsalamon/datasets/content_loader.php?id=2
 
 import glob
 import os
@@ -98,7 +99,6 @@ def plot_single_example(n,f):
     plt.xticks(fontsize=20)
     plt.yticks(fontsize=20)
     plt.ylabel('Frequency [Hz]',fontsize=20)
-
     plt.show()
 
 # sound_file_paths = ["57320-0-0-7.wav","24074-1-0-3.wav","15564-2-0-1.wav","31323-3-0-1.wav","46669-4-0-35.wav",

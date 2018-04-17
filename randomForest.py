@@ -12,17 +12,23 @@ from sklearn import preprocessing
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import f1_score
+from sklearn.decomposition import PCA
 
 train = np.loadtxt('/home/franalli/Documents/UrbanSound8K/train')
 y_train = np.loadtxt('/home/franalli/Documents/UrbanSound8K/y_train')
 val = np.loadtxt('/home/franalli/Documents/UrbanSound8K/val')
 y_val = np.loadtxt('/home/franalli/Documents/UrbanSound8K/y_val')
 
+# pca = PCA(n_components=150)
+# train = pca.fit_transform(train)
+# val = pca.transform(val)
+
+
 predictions = []
 
 
 
-clf = RandomForestClassifier(n_estimators=10, criterion='gini', max_depth=None, 
+clf = RandomForestClassifier(n_estimators=1000, criterion='gini', max_depth=None, 
     min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, 
     max_features='auto', max_leaf_nodes=None, min_impurity_decrease=0.0, 
     min_impurity_split=None, bootstrap=True, oob_score=False, n_jobs=-1, 
@@ -31,6 +37,7 @@ clf = RandomForestClassifier(n_estimators=10, criterion='gini', max_depth=None,
 clf.fit(train,y_train)
 
 val_predictions = clf.predict(val)
+embed()
 
 # mfccs:40, chroma:12, mel:128, contrast:7, tonnetz:6, zero_crossing_rate:1
 # rmse:1, bw:1
