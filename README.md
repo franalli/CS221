@@ -1,21 +1,39 @@
 # A Survey of Sound Classification Using Classic Methods and Deep Learning
 
-**CS221 — Fall 2017, Stanford University**
+**CS221: Artificial Intelligence Principles and Techniques, Fall 2017, Stanford University**
 Filippo Ranalli (`franalli@stanford.edu`) · Hiroshi Mendoza (`hmendoza@stanford.edu`)
 
-This project benchmarks an ensemble of shallow and deep classifiers on the
-[UrbanSound8K](https://urbansounddataset.weebly.com/urbansound8k.html) dataset to
-study the tradeoffs between classical ML and deep learning approaches for
-environmental and urban sound recognition.
+We compare a range of shallow and deep classifiers on the
+[UrbanSound8K](https://urbansounddataset.weebly.com/urbansound8k.html) dataset
+for environmental and urban sound recognition.
 
-The motivating application is assistive hearing: roughly 5% of the world's
+The motivating application is assistive hearing. Roughly 5% of the world's
 population suffers from some form of hearing loss, which makes it harder to
-identify nearby dangers or meaningful acoustic events. Reliable real-time
-sound recognition could give that feedback back to the user.
+identify nearby dangers or meaningful acoustic events. Real-time sound
+recognition could close that gap.
+
+## Related Work
+
+Sound classification has a commercial precedent in Shazam, which fingerprints
+music against a database. That trick does not generalize to environmental
+sounds, since there is no consistent signature across instances of, say, a
+dog bark or shattering glass. In the biomedical domain, Rubin et al. (PARC)
+converted 1D heart-sound time series into 2D time-frequency representations
+and reached high accuracy with a deep network.
+
+For environmental audio specifically, Salamon et al. surveyed shallow
+classifiers on UrbanSound, with results later outperformed by deeper models.
+Piczak applied a 2-layer CNN to segmented spectrograms and beat
+hand-engineered features, though performance was capped by dataset size.
+SCAPER (Salamon et al.) added augmented soundscapes and trained an AlexNet
+variant on them. The most relevant benchmark is Hershey et al.'s comparison
+of FC, AlexNet, VGG, and ResNet on Google's AudioSet, where ResNet topped
+the table at 0.926 accuracy. Our choice of ResNet-18 here is motivated by
+that result.
 
 ## Dataset
 
-[UrbanSound8K](https://urbansounddataset.weebly.com/urbansound8k.html) — 8,732
+[UrbanSound8K](https://urbansounddataset.weebly.com/urbansound8k.html): 8,732
 labeled `.wav` clips, each up to 4 seconds, evenly distributed across 10
 classes:
 
@@ -27,17 +45,17 @@ classes:
 | DB   | dog bark          | SI   | siren            |
 | DR   | drilling          | SM   | street music     |
 
-The 10 pre-defined folds are split 80/10/10:
-folds 1–8 for training, fold 9 for development, fold 10 held out for testing.
+The 10 pre-defined folds are split 80/10/10: folds 1-8 for training, fold 9
+for development, fold 10 held out for testing.
 
 ## Feature Extraction
 
 Raw waveforms are converted to the time-frequency domain via the Short-Time
 Fourier Transform (window size 2048) using [Librosa](https://librosa.org/).
-Two feature pipelines are used:
+Three feature pipelines are used.
 
 **Time-averaged feature vectors** (`src/features/feature_extraction_means.py`)
-— for the shallow classifiers and the feed-forward NN. Each clip is reduced
+feed the shallow classifiers and the feed-forward NN. Each clip is reduced
 to a length-193 vector by concatenating the time-averaged values of:
 
 - Mel-scaled spectrogram (`mel`, 128)
@@ -51,11 +69,11 @@ to a length-193 vector by concatenating the time-averaged values of:
 
 PCA reduces this to 185 dimensions where it helps.
 
-**2D spectrograms** (`src/features/feature_extraction_CNN.py`) — for the CNN
+**2D spectrograms** (`src/features/feature_extraction_CNN.py`) feed the CNN
 and ResNet. Each clip is converted to a 2-channel `[2, 64, 64]` image:
 channel 1 is the log-mel spectrogram, channel 2 is its temporal delta.
 
-**Sequential MFCCs** (`src/features/feature_extraction_RNN.py`) — for the RNN.
+**Sequential MFCCs** (`src/features/feature_extraction_RNN.py`) feed the RNN.
 Each clip is windowed into 100-step sequences of 50-dimensional MFCC vectors.
 
 ![Feature visualization for a car horn clip](results/figures/Feature_Visualization.png)
@@ -64,7 +82,7 @@ Each clip is windowed into 100-step sequences of 50-dimensional MFCC vectors.
 
 | File | Model | Stack |
 |------|-------|-------|
-| `src/models/kNN.py` | k-Nearest Neighbors | sklearn, L1/Minkowski distance, sweep K = 1…99 |
+| `src/models/kNN.py` | k-Nearest Neighbors | sklearn, L1/Minkowski distance, sweep K = 1...99 |
 | `src/models/SVM.py` | Support Vector Machine | sklearn, RBF kernel, one-vs-rest |
 | `src/models/randomForest.py` | Random Forest | sklearn, 1000 trees |
 | `src/models/NN.py` | 4-layer feed-forward net | PyTorch (CPU) |
@@ -79,7 +97,7 @@ baseline CNN is `[Conv→BN→ReLU]×4 → MaxPool → FC` with filter depths
 64→128→256→512. ResNet-18 follows the standard residual architecture with
 two 2-channel `[64, 64]` inputs.
 
-The oracle is a human listener, which Piczak's user study put at ~98%
+The oracle is a human listener, whom Piczak's user study put at ~98%
 accuracy.
 
 ## Results
@@ -100,15 +118,14 @@ Performance on the development set (fold 9):
 
 - **ResNet-18 is the top performer** at 75% validation accuracy.
 - **Shallow classifiers heavily overfit** and their parameter counts scale
-  with dataset size, making them impractical for larger corpora.
-- **The 4-layer NN is the best parameter-efficient model**, beating SVM and
-  Random Forest with a fraction of the parameters.
-- Random Forest feature importances rank the **mel spectrogram** as the
-  single most predictive feature group, justifying its prominence in the
-  CNN/ResNet inputs.
+  with dataset size, making them impractical on larger datasets.
+- **The 4-layer NN beats SVM and Random Forest with a fraction of the
+  parameters.**
+- Random Forest feature importances rank the **mel spectrogram** as the most
+  predictive feature group, which is why it's the primary CNN/ResNet input.
 - The most common confusions are *drilling ↔ air conditioner* and
-  *jackhammer ↔ drilling* — classes with similar low-frequency spectral
-  energy despite different waveforms.
+  *jackhammer ↔ drilling*. These classes share similar low-frequency
+  spectral energy despite different waveforms.
 
 ### Figures
 
@@ -120,6 +137,21 @@ Performance on the development set (fold 9):
 
 The full poster is in [`reports/CS221 Poster.pdf`](reports/CS221%20Poster.pdf)
 and the findings report in [`reports/findings.pdf`](reports/findings.pdf).
+
+## Future Work
+
+Extensions noted at project close:
+
+- **Saliency maps and intermediate-layer visualization** on the CNN and
+  ResNet, to identify which spectrogram regions and filter banks drive each
+  class prediction.
+- **Autoencoder-based dimensionality reduction** in place of PCA, to capture
+  non-linear feature correlations.
+- **Quantization** of the deep models from 32-bit floats to 8-bit, for
+  real-time mobile deployment.
+- **Scaling up** to Google's
+  [AudioSet](https://research.google.com/audioset/) (~2.1M clips, 527
+  classes, 5,000+ hours of audio) given the compute budget.
 
 ## Repository Layout
 
@@ -172,18 +204,18 @@ Pipeline:
 
 ## References
 
-1. J. Salamon, C. Jacoby, J. P. Bello — *A Dataset and Taxonomy for Urban Sound Research* (UrbanSound8K).
-2. K. He, X. Zhang, S. Ren, J. Sun — *Deep Residual Learning for Image Recognition*, 2015.
-3. S. Hershey et al. — *CNN Architectures for Large-Scale Audio Classification*, 2016.
-4. K. J. Piczak — *Environmental Sound Classification with Convolutional Neural Networks*.
-5. K. J. Piczak — *ESC: Dataset for Environmental Sound Classification* (human-oracle baseline).
-6. J. Salamon et al. — *SCAPER: A Library for Soundscape Synthesis and Augmentation*.
-7. S. Ioffe, C. Szegedy — *Batch Normalization*.
-8. N. Srivastava et al. — *Dropout*.
-9. D. Kingma, J. Ba — *Adam*.
+1. J. Salamon, C. Jacoby, J. P. Bello. *A Dataset and Taxonomy for Urban Sound Research* (UrbanSound8K).
+2. K. He, X. Zhang, S. Ren, J. Sun. *Deep Residual Learning for Image Recognition*, 2015.
+3. S. Hershey et al. *CNN Architectures for Large-Scale Audio Classification*, 2016.
+4. K. J. Piczak. *Environmental Sound Classification with Convolutional Neural Networks*.
+5. K. J. Piczak. *ESC: Dataset for Environmental Sound Classification* (human-oracle baseline).
+6. J. Salamon et al. *SCAPER: A Library for Soundscape Synthesis and Augmentation*.
+7. S. Ioffe, C. Szegedy. *Batch Normalization*.
+8. N. Srivastava et al. *Dropout*.
+9. D. Kingma, J. Ba. *Adam*.
 10. Feature extraction approach adapted from [aqibsaeed/Urban-Sound-Classification](https://github.com/aqibsaeed/Urban-Sound-Classification).
 11. ResNet implementation adapted from [pytorch/vision](https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py).
 
 ## License
 
-BSD 3-Clause — see [`LICENSE`](LICENSE).
+BSD 3-Clause. See [`LICENSE`](LICENSE).
